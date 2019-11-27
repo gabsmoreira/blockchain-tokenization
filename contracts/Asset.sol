@@ -4,8 +4,18 @@ contract Asset {
     uint public value;
     uint public pieces;
     mapping(uint => Owner) public tokens;
-    uint256 public tokensSold;
+    uint256 public tokensSold = 0;
     address payable public ownerAddress;
+    
+    constructor(
+        uint _value,
+        uint _pieces,
+        address payable _beneficiary
+    ) public {
+        value = _value;
+        pieces = _pieces;
+        ownerAddress = _beneficiary;
+    }
 
 
     struct Owner {
@@ -17,7 +27,7 @@ contract Asset {
         return tokenValue;
     }
 
-    function buyToken() public {
+    function buyToken() public payable {
         address _address = msg.sender;
         if(tokensSold < pieces){
             tokensSold += 1;
