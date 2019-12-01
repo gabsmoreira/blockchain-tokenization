@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity >=0.5.8;
 
 contract Asset {
     uint public value;
@@ -30,14 +30,26 @@ contract Asset {
     function buyToken() public payable {
         address _address = msg.sender;
         if(tokensSold < pieces){
-            tokensSold += 1;
             tokens[tokensSold] = Owner(_address);
+            tokensSold += 1;
             ownerAddress.transfer(getTokenPrice());
         }
     }
 
+    function buyTokens(uint256 _tokens) public payable {
+        address _address = msg.sender;
+        if(tokensSold + _tokens < pieces){
+            for(uint256 i = tokensSold; i < tokensSold + _tokens; i += 1){
+                tokens[i] = Owner(_address);
+            }
+            ownerAddress.transfer(getTokenPrice() * _tokens);
+            tokensSold += _tokens;
+        }
+    }
+    
+
     function isOwner(address _address) public view returns (bool, uint256){
-        for(uint256 i = 0; i < tokensSold; i += 1) {
+        for(uint256 i = 0; i <= tokensSold; i += 1) {
             if(_address == tokens[i]._address){
                 return (true, i);
             }
@@ -45,7 +57,22 @@ contract Asset {
         return (false, 0);
     }
 
-    function sellToken() public payable{
+    function sellTokens(uint256 _tokens) public payable{
+        address payable _address = msg.sender;
+        uint256 counter = 0;
+        for(uint256 i = 0; i < _tokens; i += 1) {
+            bool available = sellToken();
+            if(available){
+                counter += 1;
+            }
+            else{
+                break;
+            }
+        }
+        _address.transfer(getTokenPrice() * counter);
+    }
+
+    function sellToken() public payable returns (bool){
         address payable _address = msg.sender;
         (bool _isOwner, uint256 _index) = isOwner(_address);
         if(_isOwner){
@@ -53,7 +80,8 @@ contract Asset {
             tokens[_index] = last;
             delete tokens[tokensSold];
             tokensSold -= 1;
-            _address.transfer(getTokenPrice());
+            return true;
+            // _address.transfer(getTokenPrice());
             
         }
     }
