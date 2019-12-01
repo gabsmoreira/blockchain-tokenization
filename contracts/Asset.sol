@@ -27,14 +27,14 @@ contract Asset {
         return tokenValue;
     }
 
-    function buyToken() public payable {
-        address _address = msg.sender;
-        if(tokensSold < pieces){
-            tokens[tokensSold] = Owner(_address);
-            tokensSold += 1;
-            ownerAddress.transfer(getTokenPrice());
-        }
-    }
+    // function buyToken() private payable {
+    //     address _address = msg.sender;
+    //     if(tokensSold < pieces){
+    //         tokens[tokensSold] = Owner(_address);
+    //         tokensSold += 1;
+    //         ownerAddress.transfer(getTokenPrice());
+    //     }
+    // }
 
     function buyTokens(uint256 _tokens) public payable {
         address _address = msg.sender;
@@ -61,7 +61,7 @@ contract Asset {
         address payable _address = msg.sender;
         uint256 counter = 0;
         for(uint256 i = 0; i < _tokens; i += 1) {
-            bool available = sellToken();
+            bool available = deleteToken();
             if(available){
                 counter += 1;
             }
@@ -72,7 +72,7 @@ contract Asset {
         _address.transfer(getTokenPrice() * counter);
     }
 
-    function sellToken() public payable returns (bool){
+    function deleteToken() private returns (bool){
         address payable _address = msg.sender;
         (bool _isOwner, uint256 _index) = isOwner(_address);
         if(_isOwner){
@@ -81,8 +81,6 @@ contract Asset {
             delete tokens[tokensSold];
             tokensSold -= 1;
             return true;
-            // _address.transfer(getTokenPrice());
-            
         }
     }
 }
